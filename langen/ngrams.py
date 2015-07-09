@@ -1,7 +1,7 @@
 import random
 
 def get_grams(corpus, size=3):
-    """Returns a grams dict, of the form {(key1, key2, ...): [choice1, choice2, ...], ...}
+    """Returns a grams dict, of the form {'key1 key2 ...': [choice1, choice2, ...], ...}
     
     :param corpus: a list (or iterator) of words.
     
@@ -19,18 +19,18 @@ def get_grams(corpus, size=3):
 def gram_generator(grams, maxlen=100, choicefunc=random.choice, case_sensitive=True, seed=None):
     """Return a generator that yields each next word based on a grams dict
     
-    :param grams: A dict of n-grams, probably from get_grams.
+    :param grams: A dict of n-grams, probably from get_grams().
     
     :param maxlength: if 0, the generator will only stop if the next key cannot be found.
     
     :param choicefunc: a function that returns one element from a list. Only
         replace if you want a special distribution, or for debugging purposes.
     
-    :param case_sensitive: True if a key can only be matched if it perfectly matches
+    :param case_sensitive: True if a keys should not be matched if they have a different case.
                            False if case variants can count.
     
     :param seed: A starting key, defaults to a random choice (dictated by choicefunc) of
-        grams's keys"""
+        of the keys in grams"""
     curlen = 0
     key = choicefunc(tuple(grams.keys())) if seed is None else seed
     for word in key.split():
