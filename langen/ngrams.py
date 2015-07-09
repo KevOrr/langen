@@ -12,7 +12,7 @@ def get_grams(corpus, size=3):
     corpus = list(corpus)
     grams = {}
     while len(corpus) >= size:
-        key = ' '.join([corpus.pop(0)] + corpus[:size - 2])
+        key = (corpus.pop(0),) + tuple(corpus[:size - 2])
         grams.setdefault(key, []).append(corpus[size - 2])
     return grams
 
@@ -23,28 +23,30 @@ def gram_generator(grams, maxlen=100, choicefunc=random.choice, case_sensitive=T
     
     :param maxlength: if 0, the generator will only stop if the next key cannot be found.
     
-    :param choicefunc: a function that returns one element from a list. Only
+    :param choicefunc: a function that returns one element from a sequence. Only
         replace if you want a special distribution, or for debugging purposes.
     
     :param case_sensitive: True if a keys should not be matched if they have a different case.
-                           False if case variants can count.
+                           False if case variants can count. If False, it is assumed that all
+                           potential next choices have a .lower() method and that all keys
+                           are completely lowercase.
     
     :param seed: A starting key, defaults to a random choice (dictated by choicefunc) of
         of the keys in grams"""
     curlen = 0
     key = choicefunc(tuple(grams.keys())) if seed is None else seed
-    for word in key.split():
-        if curlen > maxlen:
+    for word in key:
+        if curlen > maxlen > 0:
             return
         curlen += 1
         yield word
-    key = key if case_sensitive else key.lower()
+    key = key if case_sensitive else tuple(word.lower() for word in key)
     while maxlen == 0 or curlen <= maxlen:
         if key not in grams:
             return
         next_word = choicefunc(grams[key])
-        key = ' '.join(key.split()[1:]) + ' ' + next_word
-        key = key if case_sensitive else key.lower()
+        key = tuple(key[1:]) + (next_word,)
+        key = key if case_sensitive else tuple(word.lower() for word in key)
         curlen += 1
         yield next_word
 
